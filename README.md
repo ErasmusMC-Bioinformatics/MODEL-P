@@ -1,3 +1,3 @@
 # MODEL-P
-This is the Python code of MODEL-P
-The input data is 146 TCGA samples of RNA-seq, microRNA-seq and DNA methylation processed as being described in the manuscript
+
+Here we give the data preprocessing code in R and the MODEL-P in python.
