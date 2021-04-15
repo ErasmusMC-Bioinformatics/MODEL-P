@@ -30,35 +30,6 @@ mirna <- read.table("ProcessedData/READ__illuminahiseq_mirnaseq__RPM.txt",sep = 
 rownames(mirna) <- mirna$V1
 mirna$V1 <- NULL
 
-# mutation
-mutationData <- ProcessSomaticMutationData(inputFilePath = "pan_mutation/PAAD__somaticMutation_maf.txt",
-                                           outputFileName = "MutationData", 
-                                           outputFileFolder ="ProcessedData.mutation")
-mutation.orig <- read.table("D:/1_Jie_OIO/pancreatic cancer/ProcessedData.mutation/MutationData_mutationLevel.txt",sep = "\t",header = TRUE)#
-
-
-
-
-# # cut samples names
-# colnames(mutation)[3:180] <- substr(colnames(mutation)[3:180],1,12)
-# mutation <- mutation[mutation$GeneSymbol %in% c("KRAS", "TP53", "CDKN2A", "SMAD4", "BRCA1", "BRCA2","TP63"),]
-# # aggregate mutation to gene level
-# 
-# mutation$geneMutation <- paste(mutation$GeneSymbol,"-",mutation$Variant_Classification)
-# try = aggregate(mutation[c(3:180)], by=list(mutation$geneMutation), sum)
-# rownames(try) <- try$Group.1
-# try$Group.1 <- NULL
-# 
-# try <- as.data.frame(t(try))
-# try1 = merge(clinical_new3, try, by=0, all=TRUE)
-# try1 = try1[-which(is.na(try1$bcr_patient_barcode)),]
-# try1$Row.names = NULL
-# try1 = try1[c(24:37)]
-# try1 = na.omit(try1)
-# 
-# fisher.p = lapply(try1[c(2:14)], function(x) fisher.test(try1$class,x)$p.value)
-
-
 
 # RNA
 mrna <- ProcessRNASeqData(inputFilePath = "TCGA-Assembler/pan_mrna/PAAD_RNAseq.txt", 
@@ -120,50 +91,6 @@ methy_new = methy_new[common_id]
 mirna_new = mirna_new[common_id]
 mrna_new = mrna_new[common_id]
 
-# mutation
-mutation$TCGA.HZ.A9TJ.06A <- NULL
-colnames(mutation)[3:179] = substr(colnames(mutation)[3:179],1,12)
-mutation_new <- mutation[c("GeneSymbol","Variant_Classification",common_id)]
-mutation_new <- mutation_new[c("GeneSymbol","Variant_Classification",intersect(colnames(mutation_new),clinical_new3$bcr_patient_barcode))]
-# related genes
-mutation_new <- mutation_new[mutation_new$GeneSymbol %in% c("KRAS", "TP53", "CDKN2A", "SMAD4", "BRCA1", "BRCA2","CD44","TP63","PRSS1","CHI3L2"),]#
-# subtype of mutation data
-mutation_subtype = clinical_new3[clinical_new3$bcr_patient_barcode %in% colnames(mutation_new)[3:142],c("bcr_patient_barcode","class")]
-#clinical_mutation = clinical_new3[clinical_new3$bcr_patient_barcode %in% colnames(mutation_new)[3:142],c("class","survival","vital_status")]
-
-mutation_new1 = data.frame(t(mutation_new[3:142]))
-mutation_new1$bcr_patient_barcode = rownames(mutation_new1)
-mutation_subtype = left_join(mutation_subtype,mutation_new1)
-#geo_surv.mut = survfit(Surv(survival, vital_status) ~ class, clinical_mutation)
-#
-#ggsurvplot(geo_surv.mut,pval = TRUE)
-
-
-odd.ratio = rnorm(104)
-pvalue = rnorm(104)
-
-for (i in 3:106){
-  if (all(mutation_subtype[[i]]==0)){
-  #if (i == 18 | i == 46 | i == 64 |i == 68| i == 76  | i == 104){
-    print(i)
-    odd.ratio[i] = 10
-    pvalue[i] = 10
-    next
-  }
-  #x = unlist(mutation_new[i,3:142])
-  #logit.mut = glm(mutation_subtype~x,family=binomial(link='logit'))
-  fishertest  = fisher.test(mutation_subtype[[i]],mutation_subtype$class)
-  odd.ratio[i-2] = fishertest$estimate
-  #odd.ratio[i] = exp(coef(logit.mut))[2]
-  pvalue[i-2] = fishertest$p.value 
-  #pvalue[i] = summary(logit.mut)$coefficients["x", "Pr(>|z|)"]
-}
-odd.ratio
-pvalue
-
-mutation_subtype[c("survival","vital_status")] = clinical_new3[clinical_new3$bcr_patient_barcode %in% mutation_subtype$bcr_patient_barcode,c("survival","vital_status")]
-summary(coxph(Surv(survival, vital_status) ~ class + X17, mutation_subtype))
-
 clinical_new = clinical[which(clinical$bcr_patient_barcode %in% common_id),]
 clinical_new = clinical_new[c("bcr_patient_barcode","vital_status","last_contact_days_to","death_days_to","cause_of_death","histologic_diagnosis","histologic_diagnosis_other")]
 # modify survival time and status column to prepare for cox-ph
@@ -177,7 +104,6 @@ clinical_new$survival <- clinical_new$last_contact_days_to + clinical_new$death_
 
 ######### features preprocessing #########
 
-
 ######## mrna #######
 # filter out data with more than 20% 0 or missing value
 
@@ -189,9 +115,8 @@ mrna_filter <- mrna_filter[mrna_filter$GeneSymbol != "?",]
 
 # aggragate mrna features, 17211 features -> 17188 features
 mrna_aggre <- aggregate(mrna_filter[,c(2:178)],by=list(mrna_filter$GeneSymbol), FUN=function(x) x=max(x))
-
-
-write.csv(mrna_aggre,"pancreatic cancer/input data/mrna.csv")
+# write.csv(mrna_aggre,"pancreatic cancer/input data/mrna.csv")
+                        
 ######### mirna ##########
 # filter out data with more than 20% 0 or missing value
 # mirna 1870 features -> 429 features
@@ -219,34 +144,5 @@ methy_filled <- cbind("GeneSymbol"=factor(methy_filter$GeneSymbol),methy_filled)
 methy_aggre <- aggregate(methy_filled[,c(2:178)],by=list(methy_filled$GeneSymbol), FUN=function(x) x=max(x))
 
 methy_aggre2 <- aggregate(methy_filled[,c(2:178)],by=list(methy_filled$GeneSymbol), FUN=function(x) x=mean(x))
-
-
-###### scaling for svm #######
-write.table(mrna_aggre,"pancreatic cancer/input data/mrna.txt",row.names = FALSE, sep = "\t",col.names = FALSE)
-
-library(SCAN.UPC)
-mrna_scan = UPC_RNASeq("pancreatic cancer/input data/mrna.txt")
-rownames(mrna_scan) = colnames(mrna_aggre)[2:178]
-write.csv(mrna_scan,"pancreatic cancer/input data/mrna_upc.csv")
-
-# mrna_scan_array = sapply(mrna_aggre[2:178], UPC_Generic)
-# mrna_scan_array = as.data.frame(mrna_scan_array)
-# mrna_scan_array$GeneSymbol = mrna_aggre$Group.1
-# write.csv(mrna_scan_array,"pancreatic cancer/input data/mrna_array_upc.csv")
-
-mirna_scan = sapply(mirna_filter[2:178], UPC_Generic)
-mirna_scan = as.data.frame(mirna_scan)
-mirna_scan$GeneSymbol = mirna_filter$GeneSymbol
-write.csv(mirna_scan,"pancreatic cancer/input data/mirna_upc.csv")
-
-
-# output centered data
-write.csv(methy.train1,"svm data/methylation_train.csv")
-write.csv(mrna.train1,"svm data/mrna_train.csv")
-write.csv(mirna.train1,"svm data/mirna_train.csv")
-write.csv(methy.test1,"svm data/methylation_test.csv")
-write.csv(mrna.test1,"svm data/mrna_test.csv")
-write.csv(mirna.test1,"svm data/mirna_test.csv")
-
 
 
