@@ -53,13 +53,8 @@ mrna_id = substr(mrna_id,1,16)
 mirna_id = colnames(mirna)[2:183]
 mirna_id = substr(mirna_id,1,16)
 
-mutation <- mutation.orig[c(1,9,20:197)]
-mutation_id = colnames(mutation)[3:180]
-mutation_id = substr(mutation_id,1,16)
-colnames(mutation)[3:180] = mutation_id
-
 # select common id of methylation, mirna and rna
-common_id = Reduce(intersect,list(methy_id,mrna_id,mirna_id,mutation_id))
+common_id = Reduce(intersect,list(methy_id,mrna_id,mirna_id))
 # find patient samples and exclude normal
 types <- gsub("TCGA.[A-Z0-9]*.[A-Z0-9]*.", "",common_id)
 unique(types)
