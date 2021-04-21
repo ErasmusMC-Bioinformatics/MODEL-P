@@ -239,4 +239,3 @@ geo.mirna3[,1] = sub(" ","",geo.mirna3[,1])
 geo.mirna3 = geo.mirna3[geo.mirna3[,1] %in% geo.clinic$Sample_id,]
 # save data
 write.csv(geo.mirna3,"pancreatic_cancer/external dataset/PDAC_GEO_mirna/mirna.tsv")
-geo.mirna3 = read.csv("pancreatic_cancer/external dataset/PDAC_GEO_mirna/mirna.tsv")
