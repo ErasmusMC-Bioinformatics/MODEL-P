@@ -14,7 +14,7 @@ MODEL-P consist of two parts. Firstly, the PDAC prognosis-correlated subtypes we
 
 Secondly, classification models were trained based on each single omics TCGA training set with the identified subtypes as class labels and validated on five independent test sets. The subtype-specific feature were selected using Python code **subtype_signatures.ipynb**. The SVM classifiers were trained and constructed using **test_model_prediction.ipynb**.
 
-## Code dependencies
+## Python code dependencies
 1. tensorflow 1.15.0
 2. tensorflow.keras 2.2.4-tf
 3. numpy 1.19.5
