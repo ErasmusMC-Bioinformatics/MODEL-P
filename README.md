@@ -10,7 +10,7 @@ All the steps for the training data downloading and preprocessing was presented 
 Afterward the prognosis-correlated subtypes identified from MODEL-P subtypes were validated on five independent datasets. Three test sets were downloaded from the ICGC Australian cohort (one mRNA-seq, one mRNA microarray, and one DNA methylation dataset). Two of these test sets were downloaded from one study in the Gene Expression Omnibus database (one mRNA array dataset GSE62452 and one microRNA dataset GSE62498). The R script used to preprocess these test sets is **TestData_preprocessing.R**.
 
 ## Model
-MODEL-P consist of two parts. 
+MODEL-P consists of two parts. 
 
 Firstly, the PDAC prognosis-correlated subtypes were identified based on multi-omics using Autoencoder. The Python code was implemented in **AE-subtyping.ipynb**. 
 
